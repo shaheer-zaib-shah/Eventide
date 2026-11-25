@@ -1,0 +1,210 @@
+@startuml ClassDomain
+' SDS Figure 2 - Domain classes: inheritance hierarchies and polymorphic methods
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+abstract class User {
+  - #id : number
+  - #fullName : string
+  - #email : string
+  - #passwordHash : string
+  - #gender : Gender
+  - #isActive : boolean
+  + getId() : number
+  + getEmail() : string
+  + getRole() : Role
+  + verifyPassword(plain) : Promise<boolean>
+  + toPublicJSON() : object
+  + {abstract} permissions() : Set<string>
+  + {abstract} getDashboard() : DashboardSpec
+  + can(permission) : boolean
+  + canJoinChat(event, ctx) : boolean
+}
+class Admin {
+  + permissions() : Set<string>
+  + getDashboard() : DashboardSpec
+  + canJoinChat(event, ctx) : boolean
+}
+class Organizer {
+  + permissions() : Set<string>
+  + getDashboard() : DashboardSpec
+  + canJoinChat(event, ctx) : boolean
+}
+class Participant {
+  - #university : string
+  + permissions() : Set<string>
+  + getDashboard() : DashboardSpec
+  + canJoinChat(event, ctx) : boolean
+}
+class Judge {
+  + permissions() : Set<string>
+  + getDashboard() : DashboardSpec
+  + canJoinChat(event, ctx) : boolean
+}
+class Sponsor {
+  - #companyName : string
+  + permissions() : Set<string>
+  + getDashboard() : DashboardSpec
+}
+User <|-- Admin
+User <|-- Organizer
+User <|-- Participant
+User <|-- Judge
+User <|-- Sponsor
+
+class UserFactory <<factory>> {
+  + {static} fromRow(row) : User
+}
+UserFactory ..> User : creates subclass by role
+
+abstract class Payment {
+  - #id : number
+  - #payerId : number
+  - #amount : number
+  - #method : PaymentMethod
+  - #status : PaymentStatus
+  - #transactionRef : string
+  + getStatus() : PaymentStatus
+  + markVerified(verifierId) : void
+  + markRejected(reason) : void
+  + {abstract} calculateAmount() : number
+  + {abstract} onVerified(services) : Promise<void>
+  + describe() : string
+}
+class RegistrationPayment {
+  - #registration : Registration
+  + calculateAmount() : number
+  + onVerified(services) : Promise<void>
+}
+class SponsorshipPayment {
+  - #sponsorship : Sponsorship
+  + calculateAmount() : number
+  + onVerified(services) : Promise<void>
+}
+class AccommodationPayment {
+  - #request : AccommodationRequest
+  + calculateAmount() : number
+  + onVerified(services) : Promise<void>
+}
+Payment <|-- RegistrationPayment
+Payment <|-- SponsorshipPayment
+Payment <|-- AccommodationPayment
+
+abstract class Registration {
+  - #id : number
+  - #event : Event
+  - #status : RegistrationStatus
+  - #createdAt : Date
+  + getStatus() : RegistrationStatus
+  + confirm() : void
+  + cancel() : void
+  + isSeatHoldExpired(now, holdHours) : boolean
+  + {abstract} validate(event, existing) : void
+  + {abstract} seatCount() : number
+  + {abstract} memberIds() : number[]
+}
+class IndividualRegistration {
+  - #participantId : number
+  + validate(event, existing) : void
+  + seatCount() : number
+  + memberIds() : number[]
+}
+class TeamRegistration {
+  - #team : Team
+  + validate(event, existing) : void
+  + seatCount() : number
+  + memberIds() : number[]
+}
+Registration <|-- IndividualRegistration
+Registration <|-- TeamRegistration
+
+class Team {
+  - #id : number
+  - #name : string
+  - #leaderId : number
+  - #members : Map<number, Participant>
+  + addMember(p) : void
+  + removeMember(id) : void
+  + size() : number
+  + hasMember(id) : boolean
+}
+TeamRegistration o-- "1" Team
+Team o-- "1..*" Participant
+
+class Event {
+  - #id : number
+  - #title : string
+  - #category : Category
+  - #isTeamEvent : boolean
+  - #minTeamSize : number
+  - #maxTeamSize : number
+  - #maxParticipants : number
+  - #fee : number
+  - #slot : TimeSlot
+  - #rounds : EventRound[]
+  - #status : EventStatus
+  + seatsLeft(registrations) : number
+  + isOpenForRegistration(now) : boolean
+  + isChatWritable(now) : boolean
+  + addRound(round) : void
+}
+class EventRound {
+  - #id : number
+  - #name : string
+  - #order : number
+  - #slot : TimeSlot
+  - #criteria : Criterion[]
+}
+class Venue {
+  - #id : number
+  - #name : string
+  - #capacity : number
+  + fits(seats) : boolean
+}
+class TimeSlot <<value object>> {
+  - #start : Date
+  - #end : Date
+  + overlaps(other) : boolean
+  + durationMinutes() : number
+}
+class Criterion {
+  - #name : string
+  - #maxMarks : number
+  - #weight : number
+  + validateMarks(m) : void
+}
+class Score {
+  - #judgeId : number
+  - #registrationId : number
+  - #marks : Map<criterionId, number>
+  + weightedTotal(criteria) : number
+}
+class ChatMessage {
+  - #id : number
+  - #eventId : number
+  - #senderId : number
+  - #body : string
+  - #isDeleted : boolean
+  + softDelete(byUser) : void
+  + toPublicJSON() : object
+}
+class Room {
+  - #id : number
+  - #type : RoomType
+  - #capacity : number
+  - #gender : Gender
+  - #occupants : number
+  + hasSpaceFor(n, gender) : boolean
+}
+
+Event "1" *-- "1..*" EventRound
+Event "*" --> "1" Venue
+Event "1" o-- "*" Registration
+Event --> TimeSlot
+EventRound --> TimeSlot
+EventRound "1" *-- "1..*" Criterion
+Score --> Criterion
+Event "1" o-- "*" ChatMessage
+RegistrationPayment --> Registration
+@enduml

@@ -1,0 +1,50 @@
+@startuml SeqTeamRegistration
+' SDS Figure 6 - Team registration and payment verification
+skinparam shadowing false
+autonumber
+
+actor Participant as P
+participant "React\nEventDetailsPage" as UI
+participant "authenticate +\nauthorize('participant')" as MW
+participant RegistrationController as RC
+participant RegistrationService as RS
+participant "TeamRegistration\n(Registration)" as TR
+participant RegistrationRepository as RR
+participant LiveUpdateHub as HUB
+database PostgreSQL as DB
+actor Organizer as O
+participant PaymentService as PS
+participant "RegistrationPayment\n(Payment)" as RP
+
+P -> UI : fill team name + member emails
+UI -> UI : client-side validation (size, emails)
+UI -> MW : POST /api/events/{id}/registrations (JWT)
+MW -> RC : req.user = Participant
+RC -> RS : register(user, eventId, dto)
+RS -> RR : withTransaction(...)
+RR -> DB : SELECT event ... FOR UPDATE
+RS -> TR : validate(event, existing)
+alt team size outside limits / member already in a team / event full
+  TR --> RS : throw RuleViolationError | ConflictError
+  RS --> RC : error
+  RC --> UI : 409 / 422 + message (central error handler)
+  UI --> P : inline error, form kept
+else valid
+  RR -> DB : INSERT teams, team_members, registrations(PENDING_PAYMENT, hold 48h)
+  DB --> RR : ok (COMMIT)
+  RS -> HUB : publish("event:{id}", "seats", seatsLeft)
+  RC --> UI : 201 Created {registrationId, fee}
+  UI --> P : go to Payment page
+end
+
+P -> UI : submit method + transaction ref
+UI -> PS : POST /api/payments
+PS -> DB : INSERT payments(PENDING)
+O -> PS : PATCH /api/payments/{id}/verify
+PS -> RP : markVerified(organizerId)
+PS -> RP : onVerified(services)  <<polymorphic>>
+RP -> RS : confirm registration
+RS -> DB : UPDATE registrations SET status = CONFIRMED
+RS -> HUB : publish("user:{id}", "notification", "Registration confirmed")
+HUB --> UI : SSE event -> status badge + chat unlocked
+@enduml

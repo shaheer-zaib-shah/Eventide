@@ -1,0 +1,50 @@
+@startuml SeqEventChat
+' SDS Figure 7 - Sending a message in an event chat
+skinparam shadowing false
+autonumber
+
+actor "Participant A" as A
+participant "React ChatPage (A)" as UIA
+participant "authenticate" as MW
+participant ChatController as CC
+participant ChatService as CS
+participant "User (polymorphic)\ncanJoinChat()" as U
+participant ChatRepository as CR
+participant LiveUpdateHub as HUB
+database PostgreSQL as DB
+participant "React ChatPage (B..n)" as UIB
+
+UIA -> HUB : GET /api/live?channels=chat:{eventId} (EventSource)
+UIA -> CC : GET /api/events/{id}/chat?limit=50
+CC -> CS : history(user, eventId)
+CS -> U : canJoinChat(event, ctx)
+U --> CS : true / false
+CS -> CR : latest 50 messages
+CR -> DB : SELECT ... ORDER BY message_id DESC LIMIT 50
+CC --> UIA : 200 [messages]
+
+A -> UIA : type message, press Send
+UIA -> CC : POST /api/events/{id}/chat {body}
+CC -> CS : send(user, eventId, body)
+CS -> U : canJoinChat(event, ctx)
+alt not a member (not confirmed / not assigned)
+  CS --> CC : throw ForbiddenError
+  CC --> UIA : 403 "You can chat only in events you are confirmed in"
+else chat closed (event completed or cancelled)
+  CS --> CC : throw RuleViolationError
+  CC --> UIA : 422 "This chat is read-only"
+else body empty or > 1000 chars
+  CS --> CC : throw ValidationError
+  CC --> UIA : 400 + field message
+else more than 5 messages in 10 s
+  CS --> CC : throw RateLimitError
+  CC --> UIA : 429 "Slow down"
+else ok
+  CS -> CR : insert(eventId, senderId, body)
+  CR -> DB : INSERT chat_messages
+  CS -> HUB : publish("chat:{eventId}", "message", dto)
+  HUB --> UIA : SSE message
+  HUB --> UIB : SSE message (all members online)
+  CC --> UIA : 201 Created
+end
+@enduml
