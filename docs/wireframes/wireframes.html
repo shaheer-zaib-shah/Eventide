@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Eventide Wireframes</title>
+<style>
+  :root { --ink:#222; --mid:#777; --line:#bbb; --fill:#eee; --note:#fff6a8; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:#fff; color:var(--ink); font-family:"Segoe Print","Comic Sans MS",cursive; font-size:15px; }
+  .screen { width:1280px; height:800px; padding:18px; position:relative; display:none; overflow:hidden; }
+  .screen.on { display:block; }
+  .frame { border:2.5px solid var(--ink); border-radius:10px; height:100%; position:relative; overflow:hidden; }
+  .bar { height:52px; border-bottom:2px solid var(--ink); display:flex; align-items:center; padding:0 16px; gap:14px; }
+  .logo { font-weight:bold; font-size:20px; border:2px solid var(--ink); padding:2px 10px; border-radius:6px; }
+  .grow { flex:1; }
+  .avatar { width:32px; height:32px; border:2px solid var(--ink); border-radius:50%; }
+  .bell { width:26px; height:26px; border:2px solid var(--ink); border-radius:6px; text-align:center; line-height:20px; font-size:13px; }
+  .side { position:absolute; top:52px; bottom:0; left:0; width:200px; border-right:2px solid var(--ink); padding:14px 12px; }
+  .side div { padding:7px 8px; margin-bottom:6px; border:1.5px dashed var(--line); border-radius:6px; }
+  .side div.act { border:2px solid var(--ink); background:var(--fill); font-weight:bold; }
+  .main { position:absolute; top:52px; left:200px; right:0; bottom:0; padding:18px 22px; }
+  .main.full { left:0; }
+  h1 { font-size:24px; margin:0 0 10px; }
+  h2 { font-size:17px; margin:0 0 8px; }
+  .box { border:2px solid var(--ink); border-radius:8px; padding:10px; }
+  .dash { border:2px dashed var(--mid); border-radius:8px; padding:10px; }
+  .img { background:var(--fill); border:2px solid var(--ink); position:relative; border-radius:6px; }
+  .img::before, .img::after { content:""; position:absolute; left:0; top:50%; width:100%; border-top:1.5px solid var(--mid); }
+  .img::before { transform:rotate(18deg); } .img::after { transform:rotate(-18deg); }
+  .txt { height:9px; background:#ccc; border-radius:4px; margin:7px 0; }
+  .btn { display:inline-block; border:2.5px solid var(--ink); border-radius:8px; padding:6px 16px; font-weight:bold; background:#fff; }
+  .btn.pri { background:#333; color:#fff; }
+  .in { border:2px solid var(--ink); border-radius:6px; height:34px; padding:5px 9px; color:var(--mid); margin:4px 0 10px; font-size:14px; }
+  .lbl { font-size:13px; }
+  .chip { display:inline-block; border:2px solid var(--ink); border-radius:16px; padding:2px 12px; margin-right:6px; font-size:13px; }
+  .chip.on2 { background:#333; color:#fff; }
+  .row { display:flex; gap:14px; }
+  .note { position:absolute; background:var(--note); border:1.5px solid #c9b400; padding:7px 10px; font-size:13px; width:210px; transform:rotate(-1.5deg); box-shadow:2px 2px 0 #d8cf7a; z-index:5; }
+  .num { display:inline-block; width:24px; height:24px; border-radius:50%; background:#333; color:#fff; text-align:center; line-height:24px; font-size:13px; margin-right:4px; font-family:Arial; }
+  .err { border:2px solid #b00; color:#b00; border-radius:6px; padding:5px 9px; font-size:13px; margin:4px 0 8px; }
+  .ok { border:2px solid #2a7a2a; color:#2a7a2a; border-radius:6px; padding:5px 9px; font-size:13px; }
+  table { border-collapse:collapse; width:100%; }
+  td, th { border:1.5px solid var(--ink); padding:6px 8px; text-align:left; font-size:14px; }
+  th { background:var(--fill); }
+  .live { display:inline-block; border:2px solid #b00; color:#b00; border-radius:12px; padding:0 8px; font-size:12px; font-weight:bold; }
+  .title-tag { position:absolute; right:30px; bottom:26px; font-family:Arial; font-size:13px; color:var(--mid); }
+  .bubble { border:2px solid var(--ink); border-radius:12px; padding:6px 10px; margin:8px 0; max-width:62%; font-size:14px; }
+  .bubble.me { margin-left:auto; background:var(--fill); }
+  .who { font-size:12px; color:var(--mid); }
+  .badge { font-size:11px; border:1.5px solid var(--ink); border-radius:8px; padding:0 5px; margin-left:4px; }
+  @page { size: 1280px 800px; margin: 0; }
+  @media print { .screen { display:block !important; page-break-after: always; break-after: page; } }
+</style>
+</head>
+<body>
+
+<!-- S1: Login / Sign up -->
+<section class="screen" id="s1"><div class="frame">
+  <div class="bar"><span class="logo">EVENTIDE</span><span>NASCON 2026</span><span class="grow"></span><span class="btn">Browse events</span></div>
+  <div class="main full" style="display:flex; gap:40px; justify-content:center; padding-top:40px;">
+    <div class="img" style="width:420px; height:520px;"></div>
+    <div class="box" style="width:440px; padding:22px;">
+      <div style="display:flex; gap:10px; margin-bottom:14px;"><span class="chip on2">Login</span><span class="chip">Sign up</span></div>
+      <h1>Welcome back</h1>
+      <div class="lbl">Email</div><div class="in">fahad@student.edu.pk</div>
+      <div class="lbl">Password</div><div class="in">••••••••</div>
+      <div class="err">Invalid email or password. 2 attempts left before a 15-minute lock.</div>
+      <div style="margin:12px 0;"><span class="btn pri" style="width:100%; text-align:center; display:block;">Log in</span></div>
+      <div class="dash" style="margin-top:16px;">
+        <h2>Sign up as</h2>
+        <span class="chip on2">Participant</span><span class="chip">Sponsor</span>
+        <div class="txt" style="width:80%"></div>
+        <div class="lbl" style="color:var(--mid)">Organizer and Judge accounts are created by the Admin.</div>
+      </div>
+    </div>
+  </div>
+  <div class="note" style="left:60px; top:620px;"><span class="num">1</span>User logs in. Role from the JWT decides which dashboard opens next.</div>
+  <div class="note" style="left:1010px; top:250px;">Server error shown inline, never a crash page.</div>
+  <div class="title-tag">S1 · Login / Sign-up</div>
+</div></section>
+
+<!-- S2: Participant dashboard -->
+<section class="screen" id="s2"><div class="frame">
+  <div class="bar"><span class="logo">EVENTIDE</span><span class="grow"></span><span class="bell">3</span><span>Fahad (Participant)</span><span class="avatar"></span></div>
+  <div class="side"><div class="act">Dashboard</div><div>Browse events</div><div>My registrations</div><div>Payments</div><div>Event chat</div><div>Accommodation</div><div>Leaderboard</div><div>Logout</div></div>
+  <div class="main">
+    <h1>Hi Fahad 👋</h1>
+    <div class="row" style="margin-bottom:16px;">
+      <div class="box" style="flex:1;"><h2>Registered</h2><div style="font-size:30px;">3</div></div>
+      <div class="box" style="flex:1;"><h2>Payments pending</h2><div style="font-size:30px;">1</div></div>
+      <div class="box" style="flex:1;"><h2>Room</h2><div style="font-size:18px;">Hostel B · 214</div></div>
+      <div class="box" style="flex:1;"><h2>Unread chat</h2><div style="font-size:30px;">12</div></div>
+    </div>
+    <div class="row">
+      <div class="box" style="flex:2;">
+        <h2>My upcoming events</h2>
+        <table><tr><th>Event</th><th>Round</th><th>Venue</th><th>Time</th><th>Status</th></tr>
+          <tr><td>Speed Programming</td><td>Prelims</td><td>Lab 01</td><td>9:00</td><td>Confirmed</td></tr>
+          <tr><td>Hackathon (Team Byte)</td><td>Round 1</td><td>Aud. A</td><td>11:00</td><td>Pending payment</td></tr>
+          <tr><td>Valorant Cup</td><td>Groups</td><td>Lab 04</td><td>14:00</td><td>Confirmed</td></tr>
+        </table>
+      </div>
+      <div class="box" style="flex:1;">
+        <h2>Notifications</h2>
+        <div class="dash" style="margin-bottom:8px;">Lab 01 moved to 9:30</div>
+        <div class="dash" style="margin-bottom:8px;">Payment verified ✔</div>
+        <div class="dash">Room allocated</div>
+      </div>
+    </div>
+  </div>
+  <div class="note" style="left:960px; top:600px;"><span class="num">2</span>Notifications and statuses update live (SSE) with no page reload.</div>
+  <div class="title-tag">S2 · Participant dashboard</div>
+</div></section>
+
+<!-- S3: Browse events -->
+<section class="screen" id="s3"><div class="frame">
+  <div class="bar"><span class="logo">EVENTIDE</span><span class="grow"></span><span class="bell">3</span><span class="avatar"></span></div>
+  <div class="side"><div>Dashboard</div><div class="act">Browse events</div><div>My registrations</div><div>Payments</div><div>Event chat</div><div>Accommodation</div><div>Leaderboard</div></div>
+  <div class="main">
+    <div class="row" style="align-items:center;"><h1 style="flex:1;">Browse events</h1><div class="in" style="width:340px;">🔍 Search by name or category</div></div>
+    <div style="margin:6px 0 16px;"><span class="chip on2">All</span><span class="chip">Tech</span><span class="chip">Business</span><span class="chip">Gaming</span><span class="chip">General</span></div>
+    <div class="row">
+      <div class="box" style="flex:1;"><div class="img" style="height:130px;"></div><h2 style="margin-top:8px;">Speed Programming</h2><div class="lbl">Tech · Individual · Rs 1,000</div><div class="txt"></div><div class="lbl"><b>12 / 40 seats left</b></div><span class="btn" style="margin-top:8px;">View</span></div>
+      <div class="box" style="flex:1;"><div class="img" style="height:130px;"></div><h2 style="margin-top:8px;">Hackathon</h2><div class="lbl">Tech · Team 3–5 · Rs 3,000/team</div><div class="txt"></div><div class="lbl"><b>4 / 20 teams left</b></div><span class="btn pri" style="margin-top:8px;">View</span></div>
+      <div class="box" style="flex:1;"><div class="img" style="height:130px;"></div><h2 style="margin-top:8px;">Case Study</h2><div class="lbl">Business · Team 2–4</div><div class="txt"></div><div class="lbl"><b>FULL</b></div><span class="btn" style="margin-top:8px; color:#999; border-color:#999;">Full</span></div>
+    </div>
+  </div>
+  <div class="note" style="left:620px; top:640px;"><span class="num">3</span>Seats-left counter is live. Click an event card to open its details.</div>
+  <div class="title-tag">S3 · Browse events</div>
+</div></section>
+
+<!-- S4: Event details + team registration -->
+<section class="screen" id="s4"><div class="frame">
+  <div class="bar"><span class="logo">EVENTIDE</span><span class="grow"></span><span class="avatar"></span></div>
+  <div class="side"><div>Dashboard</div><div class="act">Browse events</div><div>My registrations</div><div>Payments</div><div>Event chat</div></div>
+  <div class="main row">
+    <div style="flex:1.1;">
+      <div class="img" style="height:150px;"></div>
+      <h1 style="margin-top:10px;">Hackathon 2026</h1>
+      <div class="lbl">Tech · Team of 3–5 · Rs 3,000 per team · Prize Rs 150,000</div>
+      <div class="lbl">Venue: Auditorium A · 26 Nov, 11:00–19:00</div>
+      <h2 style="margin-top:12px;">Rounds</h2>
+      <table><tr><th>Round</th><th>Time</th><th>Venue</th></tr><tr><td>Round 1</td><td>11:00</td><td>Aud. A</td></tr><tr><td>Final</td><td>16:00</td><td>Aud. A</td></tr></table>
+      <h2 style="margin-top:12px;">Rules</h2><div class="txt"></div><div class="txt" style="width:70%"></div>
+    </div>
+    <div class="box" style="flex:1; padding:16px;">
+      <h2>Register your team</h2>
+      <div class="lbl">Team name</div><div class="in">Team Byte</div>
+      <div class="lbl">Members (by registered email)</div>
+      <div class="in">you (leader)</div><div class="in">shaheer@...edu.pk ✕</div><div class="in">ali@...edu.pk ✕</div>
+      <span class="btn">+ Add member</span>
+      <div class="err" style="margin-top:10px;">ali@...edu.pk is already in another team for this event.</div>
+      <div class="lbl">Fee: <b>Rs 3,000</b> · seat held for 48 h until paid</div>
+      <div style="margin-top:10px;"><span class="btn pri">Register &amp; go to payment →</span></div>
+    </div>
+  </div>
+  <div class="note" style="left:300px; top:640px;"><span class="num">4</span>Team size, duplicates and capacity are checked on the server.</div>
+  <div class="title-tag">S4 · Event details &amp; team registration</div>
+</div></section>
+
+<!-- S5: Payment -->
+<section class="screen" id="s5"><div class="frame">
+  <div class="bar"><span class="logo">EVENTIDE</span><span class="grow"></span><span class="avatar"></span></div>
+  <div class="side"><div>Dashboard</div><div>Browse events</div><div>My registrations</div><div class="act">Payments</div><div>Event chat</div></div>
+  <div class="main row">
+    <div class="box" style="flex:1; padding:16px;">
+      <h1>Pay registration fee</h1>
+      <table><tr><td>Hackathon – Team Byte</td><td>Rs 3,000</td></tr><tr><td>Seat held until</td><td>27 Nov, 23:00</td></tr><tr><th>Total</th><th>Rs 3,000</th></tr></table>
+      <h2 style="margin-top:14px;">Method</h2>
+      <div><span class="chip on2">Bank transfer</span><span class="chip">JazzCash</span><span class="chip">EasyPaisa</span></div>
+      <div class="lbl" style="margin-top:12px;">Transaction / reference ID</div><div class="in">TRX-88213409</div>
+      <div class="lbl">Receipt (image/PDF, max 2 MB)</div><div class="in">📎 receipt.jpg</div>
+      <span class="btn pri">Submit payment</span>
+    </div>
+    <div class="box" style="flex:1; padding:16px;">
+      <h2>Payment history</h2>
+      <table><tr><th>Date</th><th>For</th><th>Amount</th><th>Status</th></tr>
+        <tr><td>20 Nov</td><td>Speed Prog.</td><td>1,000</td><td>Paid ✔</td></tr>
+        <tr><td>25 Nov</td><td>Hackathon</td><td>3,000</td><td>Pending</td></tr>
+        <tr><td>25 Nov</td><td>Room (2 nights)</td><td>2,400</td><td>Pending</td></tr></table>
+      <div style="margin-top:20px;">Submitted → <b>Verified by organizer</b> → Registration confirmed</div>
+    </div>
+  </div>
+  <div class="note" style="left:860px; top:520px;"><span class="num">5</span>Once the organizer verifies, the registration turns Confirmed and the event chat unlocks.</div>
+  <div class="title-tag">S5 · Payment</div>
+</div></section>
+
+<!-- S6: Event chat -->
+<section class="screen" id="s6"><div class="frame">
+  <div class="bar"><span class="logo">EVENTIDE</span><span class="grow"></span><span class="bell">3</span><span class="avatar"></span></div>
+  <div class="side"><div>Dashboard</div><div>Browse events</div><div>My registrations</div><div>Payments</div><div class="act">Event chat</div><div>Leaderboard</div></div>
+  <div class="main row" style="padding:0;">
+    <div style="width:230px; border-right:2px solid var(--ink); padding:14px;">
+      <h2>My event chats</h2>
+      <div class="box" style="margin-bottom:8px; background:var(--fill);"># Hackathon <b>(5)</b></div>
+      <div class="dash" style="margin-bottom:8px;"># Speed Programming</div>
+      <div class="dash"># Valorant Cup</div>
+    </div>
+    <div style="flex:1; display:flex; flex-direction:column; padding:14px;">
+      <div class="row" style="align-items:center;"><h2 style="flex:1; margin:0;"># Hackathon – participants chat</h2><span class="live">● LIVE</span></div>
+      <div style="flex:1; padding-top:6px;">
+        <div class="bubble"><div class="who">Sara (Organizer)<span class="badge">ORG</span></div>Round 1 starts 11:00 in Aud. A. Bring your laptops.</div>
+        <div class="bubble"><div class="who">Hamza · Team Nova</div>Is Wi-Fi available inside?</div>
+        <div class="bubble"><div class="who">Dr. Imran<span class="badge">JUDGE</span></div>Yes, and we will score on 4 criteria.</div>
+        <div class="bubble me"><div class="who">You · Team Byte</div>Thanks! See you there.</div>
+        <div class="bubble" style="color:var(--mid); border-style:dashed;">Message removed by organizer</div>
+      </div>
+      <div class="row"><div class="in" style="flex:1; margin:0;">Type a message (max 1000 characters)…</div><span class="btn pri">Send</span></div>
+    </div>
+    <div style="width:200px; border-left:2px solid var(--ink); padding:14px;">
+      <h2>Members (42)</h2>
+      <div class="lbl">Organizers</div><div class="txt"></div>
+      <div class="lbl">Judges</div><div class="txt"></div><div class="txt"></div>
+      <div class="lbl">Participants</div><div class="txt"></div><div class="txt"></div><div class="txt"></div><div class="txt"></div>
+    </div>
+  </div>
+  <div class="note" style="left:900px; top:470px;"><span class="num">6</span>Only confirmed participants, the event's organizer and its judges can join. New messages arrive live.</div>
+  <div class="title-tag">S6 · Event chat (new module)</div>
+</div></section>
+
+<!-- S7: Judge scoring -->
+<section class="screen" id="s7"><div class="frame">
+  <div class="bar"><span class="logo">EVENTIDE</span><span class="grow"></span><span>Dr. Imran (Judge)</span><span class="avatar"></span></div>
+  <div class="side"><div>Dashboard</div><div class="act">Score teams</div><div>Event chat</div><div>Leaderboard</div></div>
+  <div class="main row">
+    <div style="width:260px;">
+      <div class="lbl">Assigned event / round</div><div class="in">Hackathon · Round 1 ▾</div>
+      <h2>Teams</h2>
+      <div class="box" style="margin-bottom:6px; background:var(--fill);">Team Byte ●</div>
+      <div class="dash" style="margin-bottom:6px;">Team Nova ✔ scored</div>
+      <div class="dash" style="margin-bottom:6px;">Team Pixel</div>
+      <div class="dash">Team Root</div>
+    </div>
+    <div class="box" style="flex:1; padding:16px;">
+      <h1>Score: Team Byte</h1>
+      <table><tr><th>Criterion</th><th>Weight</th><th>Max</th><th>Marks</th></tr>
+        <tr><td>Technical skill</td><td>40%</td><td>10</td><td><div class="in" style="margin:0;">8</div></td></tr>
+        <tr><td>Creativity</td><td>25%</td><td>10</td><td><div class="in" style="margin:0;">7</div></td></tr>
+        <tr><td>Presentation</td><td>20%</td><td>10</td><td><div class="in" style="margin:0; border-color:#b00;">12</div></td></tr>
+        <tr><td>Completeness</td><td>15%</td><td>10</td><td><div class="in" style="margin:0;">9</div></td></tr></table>
+      <div class="err">Presentation: marks must be between 0 and 10.</div>
+      <div class="lbl">Feedback</div><div class="in" style="height:60px;">Good demo, needs tests…</div>
+      <span class="btn pri">Save score</span>
+    </div>
+  </div>
+  <div class="note" style="left:40px; top:560px;"><span class="num">7</span>Only judges assigned to this round see it. Scores lock when results are published.</div>
+  <div class="title-tag">S7 · Judge scoring</div>
+</div></section>
+
+<!-- S8: Live leaderboard -->
+<section class="screen" id="s8"><div class="frame">
+  <div class="bar"><span class="logo">EVENTIDE</span><span class="grow"></span><span class="avatar"></span></div>
+  <div class="side"><div>Dashboard</div><div>Browse events</div><div>Event chat</div><div class="act">Leaderboard</div></div>
+  <div class="main">
+    <div class="row" style="align-items:center;"><h1 style="flex:1;">Hackathon · Round 1 leaderboard</h1><span class="live">● LIVE · updated 2 s ago</span></div>
+    <div class="row" style="align-items:flex-end; justify-content:center; gap:20px; margin:10px 0 18px;">
+      <div class="box" style="width:170px; height:110px; text-align:center;">🥈 2nd<br><b>Team Nova</b><br>8.10</div>
+      <div class="box" style="width:170px; height:150px; text-align:center; background:var(--fill);">🥇 1st<br><b>Team Byte</b><br>8.35</div>
+      <div class="box" style="width:170px; height:90px; text-align:center;">🥉 3rd<br><b>Team Pixel</b><br>7.40</div>
+    </div>
+    <table><tr><th>Rank</th><th>Team</th><th>Judges scored</th><th>Average weighted score</th></tr>
+      <tr><td>1</td><td>Team Byte</td><td>3 / 3</td><td>8.35</td></tr>
+      <tr><td>2</td><td>Team Nova</td><td>3 / 3</td><td>8.10</td></tr>
+      <tr><td>3</td><td>Team Pixel</td><td>2 / 3</td><td>7.40</td></tr>
+      <tr><td>4</td><td>Team Root</td><td>1 / 3</td><td>6.90</td></tr></table>
+  </div>
+  <div class="note" style="left:960px; top:600px;"><span class="num">8</span>Ranks re-compute and push to every viewer as soon as a judge saves.</div>
+  <div class="title-tag">S8 · Live leaderboard</div>
+</div></section>
+
+<!-- S9: Organizer create event / venue scheduling -->
+<section class="screen" id="s9"><div class="frame">
+  <div class="bar"><span class="logo">EVENTIDE</span><span class="grow"></span><span>Sara (Organizer)</span><span class="avatar"></span></div>
+  <div class="side"><div>Dashboard</div><div class="act">My events</div><div>Venue schedule</div><div>Registrations</div><div>Verify payments</div><div>Sponsors</div><div>Accommodation</div><div>Reports</div></div>
+  <div class="main row">
+    <div class="box" style="flex:1; padding:14px;">
+      <h1>Create event</h1>
+      <div class="row"><div style="flex:1;"><div class="lbl">Title</div><div class="in">AI Challenge</div></div><div style="flex:1;"><div class="lbl">Category</div><div class="in">Tech ▾</div></div></div>
+      <div class="row"><div style="flex:1;"><div class="lbl">Type</div><div class="in">Team (2–4)</div></div><div style="flex:1;"><div class="lbl">Max teams</div><div class="in">30</div></div></div>
+      <div class="row"><div style="flex:1;"><div class="lbl">Fee (Rs)</div><div class="in">2500</div></div><div style="flex:1;"><div class="lbl">Prize pool</div><div class="in">80000</div></div></div>
+      <div class="row"><div style="flex:1;"><div class="lbl">Venue</div><div class="in">Lab 01 ▾</div></div><div style="flex:1;"><div class="lbl">Date / time</div><div class="in">26 Nov 10:00–13:00</div></div></div>
+      <div class="err">Clash: Lab 01 is booked 09:00–12:00 by Speed Programming. Pick another slot or venue.</div>
+      <span class="btn pri">Save event</span> <span class="btn">+ Add round</span>
+    </div>
+    <div class="box" style="flex:1; padding:14px;">
+      <h2>Venue schedule · 26 Nov</h2>
+      <table><tr><th>Venue</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th></tr>
+        <tr><td>Lab 01</td><td colspan="3" style="background:#ccc;">Speed Prog.</td><td style="background:#f3c3c3;" colspan="1">clash</td><td></td><td></td></tr>
+        <tr><td>Lab 04</td><td></td><td></td><td></td><td></td><td colspan="2" style="background:#ccc;">Valorant</td></tr>
+        <tr><td>Aud. A</td><td></td><td></td><td colspan="4" style="background:#ccc;">Hackathon</td></tr>
+        <tr><td>Hall C</td><td colspan="2" style="background:#ccc;">Debate</td><td></td><td></td><td></td><td></td></tr></table>
+      <div class="lbl" style="margin-top:8px;">Capacity check: Lab 01 seats 60 · 30 teams × 4 = 120 ✕</div>
+    </div>
+  </div>
+  <div class="note" style="left:900px; top:560px;"><span class="num">9</span>Overlapping booking or capacity overflow is rejected (HTTP 409/422) with a clear message.</div>
+  <div class="title-tag">S9 · Organizer: create event &amp; venue scheduling</div>
+</div></section>
+
+<script>
+  function show() {
+    const id = (location.hash || "#s1").slice(1);
+    const all = document.querySelectorAll(".screen");
+    if (id === "all") { all.forEach(s => s.classList.add("on")); return; }
+    all.forEach(s => s.classList.toggle("on", s.id === id));
+  }
+  window.addEventListener("hashchange", show); show();
+</script>
+</body>
+</html>
