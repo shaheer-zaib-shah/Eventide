@@ -1,0 +1,103 @@
+@startuml ClassServices
+' SDS Figure 3 - Controllers, services and repositories (layer collaboration)
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam nodesep 25
+skinparam ranksep 50
+top to bottom direction
+
+package "API layer (controllers)" {
+  class EventController
+  class RegistrationController
+  class PaymentController
+  class ScoreController
+  class ChatController
+  class LiveController
+}
+hide EventController members
+hide RegistrationController members
+hide PaymentController members
+hide ScoreController members
+hide ChatController members
+hide LiveController members
+
+package "Service layer" {
+  class EventService {
+    + createEvent(organizer, dto) : Event
+    + addRound(organizer, eventId, dto) : EventRound
+  }
+  class VenueScheduler {
+    - bookingsByVenue : Map<venueId, TimeSlot[]>
+    + assertAvailable(venueId, slot) : void
+    + assertCapacity(venue, seats) : void
+  }
+  class RegistrationService {
+    + register(user, eventId, dto) : Registration
+    + expireUnpaidHolds(now) : number
+  }
+  class PaymentService {
+    + submit(user, dto) : Payment
+    + verify(verifier, paymentId) : Payment
+  }
+  class ScoringService {
+    + saveScore(judge, dto) : Score
+    + computeLeaderboard(roundId) : Row[]
+    + publishResults(organizer, roundId) : void
+  }
+  class ChatService {
+    - rateWindow : Map<userId, number[]>
+    + history(user, eventId, beforeId) : ChatMessage[]
+    + send(user, eventId, body) : ChatMessage
+    + remove(user, messageId) : void
+  }
+  class AccommodationAllocator {
+    + allocate(request) : RoomAllocation
+  }
+  class SponsorshipService {
+    + choosePackage(sponsor, packageId) : Sponsorship
+  }
+  class LiveUpdateHub {
+    - clients : Map<channel, Set<Response>>
+    + subscribe(channel, res) : void
+    + publish(channel, type, payload) : void
+  }
+}
+
+package "Data access layer" {
+  abstract class BaseRepository {
+    # pool : pg.Pool
+    # table : string
+    + findById(id) : Row
+    + findAll(filter) : Row[]
+    # query(sql, params) : Row[]
+    + withTransaction(fn) : any
+  }
+  class "EventRepository\nVenueRepository\nRegistrationRepository\nPaymentRepository\nScoreRepository\nChatRepository\nRoomRepository\nUserRepository" as Repos <<8 subclasses>>
+  hide Repos members
+  BaseRepository <|-- Repos
+}
+
+EventController --> EventService
+RegistrationController --> RegistrationService
+PaymentController --> PaymentService
+ScoreController --> ScoringService
+ChatController --> ChatService
+LiveController --> LiveUpdateHub
+
+EventService --> VenueScheduler
+PaymentService ..> RegistrationService : RegistrationPayment\n.onVerified()
+PaymentService ..> AccommodationAllocator : AccommodationPayment\n.onVerified()
+PaymentService ..> SponsorshipService : SponsorshipPayment\n.onVerified()
+RegistrationService --> LiveUpdateHub
+ScoringService --> LiveUpdateHub
+ChatService --> LiveUpdateHub
+
+EventService --> Repos
+VenueScheduler --> Repos
+RegistrationService --> Repos
+PaymentService --> Repos
+ScoringService --> Repos
+ChatService --> Repos
+AccommodationAllocator --> Repos
+SponsorshipService --> Repos
+@enduml

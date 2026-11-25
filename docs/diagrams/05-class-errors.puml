@@ -1,0 +1,63 @@
+@startuml ClassErrors
+' SDS Figure 4 - Error class hierarchy
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+hide empty members
+
+class Error <<JavaScript built-in>>
+
+abstract class AppError {
+  + statusCode : number
+  + code : string
+  + details : object
+  + isOperational : boolean
+  + toResponse() : ErrorBody
+}
+class ValidationError {
+  statusCode = 400
+  code = "VALIDATION_FAILED"
+}
+class AuthError {
+  statusCode = 401
+  code = "AUTH_FAILED"
+}
+class ForbiddenError {
+  statusCode = 403
+  code = "FORBIDDEN"
+}
+class NotFoundError {
+  statusCode = 404
+  code = "NOT_FOUND"
+}
+class ConflictError {
+  statusCode = 409
+  code = "CONFLICT"
+}
+class RuleViolationError {
+  statusCode = 422
+  code = "RULE_VIOLATION"
+}
+class RateLimitError {
+  statusCode = 429
+  code = "TOO_MANY_REQUESTS"
+}
+
+Error <|-- AppError
+AppError <|-- ValidationError
+AppError <|-- AuthError
+AppError <|-- ForbiddenError
+AppError <|-- NotFoundError
+AppError <|-- ConflictError
+AppError <|-- RuleViolationError
+AppError <|-- RateLimitError
+
+class ErrorHandler <<Express middleware>> {
+  + handle(err, req, res, next) : void
+  - mapDatabaseError(pgErr) : AppError
+}
+class DbErrorMapper {
+  + {static} map(pgErr) : AppError
+}
+ErrorHandler ..> AppError : err.toResponse()
+ErrorHandler ..> DbErrorMapper : 23505 -> Conflict\n23503 -> Validation\n23P01 -> Conflict\n23514 -> RuleViolation
+@enduml

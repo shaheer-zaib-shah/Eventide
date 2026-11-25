@@ -1,0 +1,34 @@
+@startuml SeqScoringLeaderboard
+' SDS Figure 8 - Judge scoring and live leaderboard
+skinparam shadowing false
+autonumber
+
+actor Judge as J
+participant "React ScoringPage" as UI
+participant "authorize('judge')" as MW
+participant ScoreController as SC
+participant ScoringService as SS
+participant ScoreRepository as SR
+participant LiveUpdateHub as HUB
+database PostgreSQL as DB
+participant "Leaderboard viewers" as V
+
+J -> UI : enter marks per criterion
+UI -> MW : PUT /api/rounds/{roundId}/scores/{registrationId}
+MW -> SC : req.user = Judge
+SC -> SS : saveScore(judge, dto)
+SS -> SR : find assignment (judge, round)
+alt judge not assigned to round
+  SS --> SC : throw ForbiddenError (403)
+else results already published
+  SS --> SC : throw RuleViolationError (422)
+else a mark < 0 or > max_marks
+  SS --> SC : throw ValidationError (400)
+else ok
+  SR -> DB : UPSERT scores (one row per criterion)
+  SS -> SS : computeLeaderboard(roundId)\nloop registrations -> average of judges'\nweighted totals -> sort desc -> rank
+  SS -> HUB : publish("leaderboard:{roundId}", rows)
+  HUB --> V : SSE "leaderboard" (no reload)
+  SC --> UI : 200 OK
+end
+@enduml

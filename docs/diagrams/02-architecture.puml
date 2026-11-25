@@ -1,0 +1,34 @@
+@startuml Architecture
+' SDS Figure 1 - Layered architecture (top to bottom)
+skinparam shadowing false
+skinparam defaultTextAlignment center
+skinparam rectangle {
+  RoundCorner 8
+}
+top to bottom direction
+
+actor "Browser user\nAdmin · Organizer · Participant · Judge · Sponsor" as user
+
+rectangle "**Presentation layer** — React (client/)\n\nPages & role dashboards · Reusable components (forms, tables, chat, leaderboard)\nAuthContext · ErrorBoundary · Toasts\napiClient (fetch + JWT) · liveClient (EventSource + polling fallback)" as pres #FFFFFF
+
+rectangle "**API layer** — Express (server/src/routes, middleware, controllers)\n\nRoutes → Middleware: authenticate · authorize(role) · validate(schema) · rateLimit → Controllers\nCentral error handler (AppError → JSON)" as api #F3F3F3
+
+rectangle "**Service layer** — business rules (server/src/services)\n\nAuthService · EventService · VenueScheduler · RegistrationService · PaymentService\nScoringService · ChatService · AccommodationAllocator · SponsorshipService\nNotificationService · ReportService" as svc #FFFFFF
+
+rectangle "**LiveUpdateHub**\n(server/src/live)\nSSE channels:\nevent · leaderboard ·\nchat · user" as hub #F3F3F3
+
+rectangle "**Domain model** (server/src/models)\n\nUser / Payment / Registration hierarchies · Event · EventRound · Venue · TimeSlot\nTeam · Criterion · Score · Room · ChatMessage · AppError hierarchy" as dom #F3F3F3
+
+rectangle "**Data access layer** (server/src/repositories)\n\nBaseRepository → User, Event, Venue, Registration, Payment, Score, Chat, Room repositories\nparameterized SQL · transactions (node-postgres pool)" as dal #FFFFFF
+
+database "**PostgreSQL 16**\ntables · FKs · CHECK / UNIQUE / EXCLUDE constraints\ntriggers · views · indexes" as db
+
+user --> pres
+pres --> api : HTTPS REST / JSON\n(Authorization: Bearer JWT)
+api --> svc : one service call per request
+svc --> dom : uses
+svc --> dal : reads / writes
+dal --> db : SQL
+svc -right-> hub : publish(channel, event)
+hub ..> pres : Server-Sent Events\n(leaderboard, seats, chat, notifications)
+@enduml

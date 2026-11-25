@@ -1,0 +1,256 @@
+@startuml ERD
+' SDS Figure 5 - Entity-Relationship diagram (PostgreSQL, 3NF)
+skinparam shadowing false
+skinparam linetype ortho
+hide circle
+
+entity users {
+  * user_id : SERIAL <<PK>>
+  --
+  * full_name : VARCHAR(100)
+  * email : VARCHAR(120) <<UNIQUE>>
+  * password_hash : VARCHAR(255)
+  * role : user_role
+  * gender : gender_t
+  university : VARCHAR(120)
+  phone : VARCHAR(20)
+  company_name : VARCHAR(120)
+  * is_active : BOOLEAN
+  failed_logins : SMALLINT
+  locked_until : TIMESTAMPTZ
+  * created_at : TIMESTAMPTZ
+}
+
+entity venues {
+  * venue_id : SERIAL <<PK>>
+  --
+  * name : VARCHAR(80) <<UNIQUE>>
+  * venue_type : venue_type_t
+  * capacity : INT (> 0)
+  location : VARCHAR(120)
+  facilities : TEXT
+}
+
+entity events {
+  * event_id : SERIAL <<PK>>
+  --
+  * organizer_id : INT <<FK users>>
+  * venue_id : INT <<FK venues>>
+  * title : VARCHAR(120)
+  * category : event_category
+  description : TEXT
+  rules : TEXT
+  * is_team_event : BOOLEAN
+  min_team_size : SMALLINT
+  max_team_size : SMALLINT
+  * max_participants : INT
+  * registration_fee : NUMERIC(10,2)
+  prize_pool : NUMERIC(12,2)
+  * starts_at : TIMESTAMPTZ
+  * ends_at : TIMESTAMPTZ
+  * status : event_status
+}
+
+entity event_rounds {
+  * round_id : SERIAL <<PK>>
+  --
+  * event_id : INT <<FK events>>
+  * venue_id : INT <<FK venues>>
+  * name : VARCHAR(60)
+  * round_order : SMALLINT
+  * starts_at : TIMESTAMPTZ
+  * ends_at : TIMESTAMPTZ
+  * results_published : BOOLEAN
+}
+
+entity round_criteria {
+  * criterion_id : SERIAL <<PK>>
+  --
+  * round_id : INT <<FK event_rounds>>
+  * name : VARCHAR(60)
+  * max_marks : NUMERIC(5,2)
+  * weight : NUMERIC(5,2)
+}
+
+entity judge_assignments {
+  * assignment_id : SERIAL <<PK>>
+  --
+  * judge_id : INT <<FK users>>
+  * round_id : INT <<FK event_rounds>>
+  UNIQUE(judge_id, round_id)
+}
+
+entity teams {
+  * team_id : SERIAL <<PK>>
+  --
+  * event_id : INT <<FK events>>
+  * leader_id : INT <<FK users>>
+  * name : VARCHAR(60)
+  UNIQUE(event_id, name)
+}
+
+entity team_members {
+  * team_id : INT <<PK, FK teams>>
+  * user_id : INT <<PK, FK users>>
+  --
+  * event_id : INT <<FK events>>
+  UNIQUE(event_id, user_id)
+}
+
+entity registrations {
+  * registration_id : SERIAL <<PK>>
+  --
+  * event_id : INT <<FK events>>
+  user_id : INT <<FK users>>
+  team_id : INT <<FK teams>>
+  * status : registration_status
+  * seat_count : SMALLINT
+  * created_at : TIMESTAMPTZ
+  hold_expires_at : TIMESTAMPTZ
+  CHECK (user_id XOR team_id)
+}
+
+entity scores {
+  * score_id : SERIAL <<PK>>
+  --
+  * assignment_id : INT <<FK judge_assignments>>
+  * registration_id : INT <<FK registrations>>
+  * criterion_id : INT <<FK round_criteria>>
+  * marks : NUMERIC(5,2)
+  feedback : TEXT
+  * updated_at : TIMESTAMPTZ
+  UNIQUE(assignment_id, registration_id, criterion_id)
+}
+
+entity payments {
+  * payment_id : SERIAL <<PK>>
+  --
+  * payer_id : INT <<FK users>>
+  * payment_type : payment_type
+  registration_id : INT <<FK registrations>>
+  sponsorship_id : INT <<FK sponsorships>>
+  accommodation_request_id : INT <<FK accommodation_requests>>
+  * amount : NUMERIC(10,2)
+  * method : payment_method
+  * transaction_ref : VARCHAR(60) <<UNIQUE>>
+  receipt_path : VARCHAR(255)
+  * status : payment_status
+  verified_by : INT <<FK users>>
+  verified_at : TIMESTAMPTZ
+  * created_at : TIMESTAMPTZ
+  CHECK (exactly one target FK)
+}
+
+entity sponsorship_packages {
+  * package_id : SERIAL <<PK>>
+  --
+  * tier : sponsor_tier <<UNIQUE>>
+  * price : NUMERIC(12,2)
+  * max_slots : SMALLINT
+  benefits : TEXT
+}
+
+entity sponsorships {
+  * sponsorship_id : SERIAL <<PK>>
+  --
+  * sponsor_id : INT <<FK users>>
+  * package_id : INT <<FK sponsorship_packages>>
+  * contract_accepted_at : TIMESTAMPTZ
+  * status : sponsorship_status
+}
+
+entity sponsorship_deliverables {
+  * deliverable_id : SERIAL <<PK>>
+  --
+  * sponsorship_id : INT <<FK sponsorships>>
+  * description : VARCHAR(200)
+  due_date : DATE
+  * status : deliverable_status
+}
+
+entity rooms {
+  * room_id : SERIAL <<PK>>
+  --
+  * hostel_name : VARCHAR(60)
+  * room_number : VARCHAR(10)
+  * room_type : room_type
+  * capacity : SMALLINT
+  * gender : gender_t
+  * price_per_night : NUMERIC(8,2)
+  UNIQUE(hostel_name, room_number)
+}
+
+entity accommodation_requests {
+  * request_id : SERIAL <<PK>>
+  --
+  * user_id : INT <<FK users>>
+  * room_type : room_type
+  * check_in_date : DATE
+  * check_out_date : DATE
+  * status : accommodation_status
+  * created_at : TIMESTAMPTZ
+}
+
+entity room_allocations {
+  * allocation_id : SERIAL <<PK>>
+  --
+  * request_id : INT <<FK, UNIQUE>>
+  * room_id : INT <<FK rooms>>
+  * allocated_at : TIMESTAMPTZ
+  checked_in_at : TIMESTAMPTZ
+  checked_out_at : TIMESTAMPTZ
+}
+
+entity chat_messages {
+  * message_id : BIGSERIAL <<PK>>
+  --
+  * event_id : INT <<FK events>>
+  * sender_id : INT <<FK users>>
+  * body : VARCHAR(1000)
+  * is_deleted : BOOLEAN
+  deleted_by : INT <<FK users>>
+  * created_at : TIMESTAMPTZ
+}
+
+entity notifications {
+  * notification_id : BIGSERIAL <<PK>>
+  --
+  * user_id : INT <<FK users>>
+  * type : VARCHAR(30)
+  * message : VARCHAR(255)
+  link : VARCHAR(255)
+  * is_read : BOOLEAN
+  * created_at : TIMESTAMPTZ
+}
+
+users ||--o{ events : organizes
+venues ||--o{ events : hosts
+venues ||--o{ event_rounds : hosts
+events ||--|{ event_rounds : has
+event_rounds ||--|{ round_criteria : "scored by"
+users ||--o{ judge_assignments : judges
+event_rounds ||--o{ judge_assignments : "has judges"
+events ||--o{ teams : has
+users ||--o{ teams : leads
+teams ||--|{ team_members : has
+users ||--o{ team_members : "member of"
+events ||--o{ registrations : receives
+users |o--o{ registrations : "registers (individual)"
+teams |o--o| registrations : "registers (team)"
+judge_assignments ||--o{ scores : gives
+registrations ||--o{ scores : receives
+round_criteria ||--o{ scores : "per criterion"
+users ||--o{ payments : pays
+registrations |o--o{ payments : "paid by"
+sponsorships |o--o{ payments : "paid by"
+accommodation_requests |o--o{ payments : "paid by"
+users ||--o{ sponsorships : sponsors
+sponsorship_packages ||--o{ sponsorships : "sold as"
+sponsorships ||--o{ sponsorship_deliverables : includes
+users ||--o{ accommodation_requests : requests
+accommodation_requests ||--o| room_allocations : "fulfilled by"
+rooms ||--o{ room_allocations : holds
+events ||--o{ chat_messages : "chat of"
+users ||--o{ chat_messages : sends
+users ||--o{ notifications : receives
+@enduml

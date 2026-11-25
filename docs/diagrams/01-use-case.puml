@@ -1,0 +1,70 @@
+@startuml UseCase
+' SRS Figure 1 - Use case diagram
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle awesome
+
+actor "Visitor" as V
+actor "Any logged-in\nuser" as U
+actor "Participant" as P
+actor "Sponsor" as S
+actor "Judge" as J
+actor "Organizer" as O
+actor "Admin" as A
+
+rectangle "Eventide - NASCON Event Management System" {
+  usecase "UC-01 Sign up" as UC01
+  usecase "UC-03 Browse & search events" as UC03
+  usecase "UC-02 Log in / Log out" as UC02
+  usecase "UC-09 View live leaderboard" as UC09
+  usecase "UC-05 Register (individual / team)" as UC05
+  usecase "UC-13 Request accommodation" as UC13
+  usecase "UC-06 Submit payment" as UC06
+  usecase "UC-15 Buy sponsorship package" as UC15
+  usecase "UC-11 Chat in event" as UC11
+  usecase "UC-08 Score participants" as UC08
+  usecase "UC-04 Create event & book venue" as UC04
+  usecase "UC-07 Verify payment" as UC07
+  usecase "UC-10 Publish results" as UC10
+  usecase "UC-12 Moderate event chat" as UC12
+  usecase "UC-14 Allocate rooms / check-in" as UC14
+  usecase "UC-16 Track sponsor deliverables" as UC16
+  usecase "UC-18 View reports" as UC18
+  usecase "UC-17 Manage users & settings" as UC17
+  usecase "Check team size\n& capacity" as CAP
+  usecase "Check venue clash" as CLASH
+}
+
+V --> UC01
+V --> UC03
+U --> UC02
+U --> UC09
+P --> UC03
+P --> UC05
+P --> UC13
+P --> UC06
+P --> UC11
+S --> UC15
+S --> UC06
+J --> UC08
+J --> UC11
+O --> UC04
+O --> UC07
+O --> UC10
+O --> UC12
+O --> UC14
+O --> UC16
+O --> UC11
+O --> UC18
+A --> UC17
+A --> UC18
+A --> UC12
+A --> UC07
+
+UC05 ..> CAP : <<include>>
+UC05 ..> UC06 : <<include>>
+UC13 ..> UC06 : <<include>>
+UC15 ..> UC06 : <<include>>
+UC04 ..> CLASH : <<include>>
+@enduml
